@@ -7,4 +7,5 @@ contrast
 gray2binary
 rgb2gray
 /*.png
+/*.jpg
 *.DS_Store
