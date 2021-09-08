@@ -18,21 +18,25 @@ int main(int argc, char** argv )
     }
     cv::Mat cont = cv::Mat::zeros(img.size(), 0);
 
+    // get min, max, slope
     int min = atoi(argv[1]);
     int max = atoi(argv[2]);
-    float slope = max - min; // ???
+    float slope = (float)255/(max - min);
 
     // do our computation for contrast
     int rows = img.rows;
     int cols = img.cols;
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
-            int val = img.at<uint8_t>(r,c) * slope;
-            if(val < 0) {
+            float val = img.at<uint8_t>(r,c);
+            if(val < min) {
                 val = 0;
             }
-            else if(val > 255) {
+            else if(val > max) {
                 val = 255;
+            }
+            else {
+                val = (val-min) * slope;
             }
             cont.at<uint8_t>(r,c) = val;
         }
