@@ -22,12 +22,12 @@ int main(int argc, char** argv )
     int rows = img.rows;
     int cols = img.cols;
     int channels = img.channels();
-    for(int i = 0; i < rows; ++i) {
-        for(int j = 0; j < cols; ++j) {
-            float val = 0.1140*img.at<cv::Vec3b>(i,j)[0] + 0.5871*img.at<cv::Vec3b>(i,j)[1] + 0.2989*img.at<cv::Vec3b>(i,j)[2];
+    for(int r = 0; r < rows; ++r) {
+        for(int c = 0; c < cols; ++c) {
+            float val = 0.1140*img.at<cv::Vec3b>(r,c)[0] + 0.5871*img.at<cv::Vec3b>(r,c)[1] + 0.2989*img.at<cv::Vec3b>(r,c)[2];
             if(val < 0) { val = 0; }
             else if(val > 255) { val = 255; }
-            gray.at<uint8_t>(i,j) = val;
+            gray.at<uint8_t>(r,c) = val;
         }
     }
     
