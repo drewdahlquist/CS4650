@@ -6,4 +6,5 @@ brightness
 contrast
 gray2binary
 rgb2gray
-*.png
+/*.png
+*.DS_Store
