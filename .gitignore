@@ -2,3 +2,7 @@ CMakeCache.txt
 CMakeFiles/
 Makefile
 cmake_install.cmake
+brightness
+contrast
+gray2binary
+rgb2gray
