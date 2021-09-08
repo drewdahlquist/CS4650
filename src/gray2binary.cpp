@@ -10,13 +10,16 @@ int main(int argc, char** argv )
     }
     
     // read input image & create 0 image for output
-    cv::Mat img = cv::imread(argv[1], 0);
-    if ( !img.data )
+    cv::Mat img = cv::imread(argv[1], 0); // input image
+    cv::Mat gt = cv::imread(argv[4], 0); // ground truth image
+    if ( !img.data || !gt.data )
     {
-        std::cout << "could not read image: " << argv[1] << std::endl;
+        std::cout << "could not read image: " << argv[1] << " and/or " << argv[4] << std::endl;
         return -1;
     }
     cv::Mat bin = cv::Mat::zeros(img.size(), 0);
+
+    int tpos, tneg, fpos, fneg = 0;
     
     // do our computation for grayscale -> binary
     int rows = img.rows;
@@ -27,10 +30,33 @@ int main(int argc, char** argv )
             if(img.at<uint8_t>(r,c) < atoi(argv[3])) { val = 0; }
             else { val = 255; }
             bin.at<uint8_t>(r,c) = val;
+            
+            // true pos
+            if(bin.at<uint8_t>(r,c) == 255 && bin.at<uint8_t>(r,c) == gt.at<uint8_t>(r,c)) {
+                ++tpos;
+            }
+            // true neg
+            else if(bin.at<uint8_t>(r,c) == 0 && bin.at<uint8_t>(r,c) == gt.at<uint8_t>(r,c)) {
+                ++tneg;
+            }
+            // false pos
+            else if(bin.at<uint8_t>(r,c) == 255 && bin.at<uint8_t>(r,c) != gt.at<uint8_t>(r,c)) {
+                ++fpos;
+            }
+            // false neg
+            else {
+                ++fneg;
+            }
         }
     }
     
     cv:imwrite(argv[2], bin);
+
+    // report stats
+    std::cout << "True Pos  : " << tpos << std::endl;
+    std::cout << "True Neg  : " << tneg << std::endl;
+    std::cout << "False Pos : " << fpos << std::endl;
+    std::cout << "False Neg : " << fneg << std::endl;
 
     // cv::namedWindow("gray2binary", cv::WINDOW_AUTOSIZE );
     // cv::imshow("gray2binary", bin);
