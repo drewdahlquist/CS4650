@@ -19,6 +19,7 @@ int main(int argc, char** argv )
     }
     cv::Mat bin = cv::Mat::zeros(img.size(), 0);
 
+    // counting
     int tpos, tneg, fpos, fneg = 0;
     
     // do our computation for grayscale -> binary

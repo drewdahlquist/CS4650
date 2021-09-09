@@ -29,15 +29,9 @@ int main(int argc, char** argv )
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
             float val = img.at<uint8_t>(r,c);
-            if(val < min) {
-                val = 0;
-            }
-            else if(val > max) {
-                val = 255;
-            }
-            else {
-                val = (val-min) * slope;
-            }
+            if(val < min) { val = 0; }
+            else if(val > max) { val = 255; }
+            else { val = (val-min) * slope; }
             cont.at<uint8_t>(r,c) = val;
         }
     }

@@ -26,12 +26,8 @@ int main(int argc, char** argv )
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
             int val = img.at<uint8_t>(r,c) + brightness;
-            if(val < 0) {
-                val = 0;
-            }
-            else if(val > 255) {
-                val = 255;
-            }
+            if(val < 0) { val = 0; }
+            else if(val > 255) { val = 255; }
             bright.at<uint8_t>(r,c) = val;
         }
     }

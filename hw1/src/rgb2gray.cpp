@@ -21,7 +21,6 @@ int main(int argc, char** argv )
     // do our computation for rbg (really it's bgr) -> grayscale
     int rows = img.rows;
     int cols = img.cols;
-    int channels = img.channels();
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
             float val = 0.1140*img.at<cv::Vec3b>(r,c)[0] + 0.5871*img.at<cv::Vec3b>(r,c)[1] + 0.2989*img.at<cv::Vec3b>(r,c)[2];
