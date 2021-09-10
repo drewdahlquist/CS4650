@@ -1,11 +1,13 @@
+# cmake stuff
 CMakeCache.txt
 CMakeFiles/
 Makefile
 cmake_install.cmake
+# executable names
 brightness
 contrast
 gray2binary
 rgb2gray
+# pictures in working dir
 /*.png
 /*.jpg
-*.DS_Store
