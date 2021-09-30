@@ -2,3 +2,10 @@ quizzes/
 report.*
 .DS_Store
 *.tar
+*/img/*
+*/Makefile
+*/CMakeFiles/*
+*/*.cmake
+*/*.png
+*/*.vscode
+CMakeCache.txt
