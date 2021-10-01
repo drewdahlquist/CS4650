@@ -92,8 +92,8 @@ int main(int argc, char** argv )
             // if pix 1 & not connected
             else if(img.at<uint8_t>(r,c) == WHITE && (img.at<uint8_t>(r,c-1) == BLACK && img.at<uint8_t>(r-1,c-1) == BLACK && img.at<uint8_t>(r-1,c) == BLACK)) {
                 ++cc;
-                // labeled.at<uint8_t>(r,c) = cc;
-                labeled.at<uint8_t>(r,c) = WHITE/2;
+                labeled.at<uint8_t>(r,c) = cc;
+                // labeled.at<uint8_t>(r,c) = WHITE/2; // TODO: remove this is just for testing
             }
             // if 0
             else if(img.at<uint8_t>(r,c) == BLACK) {
@@ -102,7 +102,7 @@ int main(int argc, char** argv )
         }
     }
     
-    cv:imwrite(argv[3], img);
+    cv:imwrite(argv[3], labeled);
 
     std::cout << "Statistics" << std::endl;
     std::cout << "Intermediate labels: " << cc << std::endl;
