@@ -19,7 +19,7 @@ void ccl_union(int parent[], int x, int y)
     parent[xset] = yset;
 }
 
-int main(int argc, char** argv )
+int main(int argc, char** argv)
 {
     if ( argc != 4 )
     {
@@ -97,19 +97,19 @@ int main(int argc, char** argv )
                 if(labeled.at<uint16_t>(r,c-1) != labeled.at<uint16_t>(r-1,c-1)) {
                     int p = std::min(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c-1));
                     int c = std::max(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c-1));
-                    parent[p] = c;
+                    parent[c] = p;
                 }
                 // left & top
                 if(labeled.at<uint16_t>(r,c-1) != labeled.at<uint16_t>(r-1,c)) {
                     int p = std::min(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c));
                     int c = std::max(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c));
-                    parent[p] = c;
+                    parent[c] = p;
                 }
                 // top-left & top
                 if(labeled.at<uint16_t>(r-1,c-1) != labeled.at<uint16_t>(r-1,c)) {
                     int p = std::min(labeled.at<uint16_t>(r-1,c-1),labeled.at<uint16_t>(r-1,c));
                     int c = std::max(labeled.at<uint16_t>(r-1,c-1),labeled.at<uint16_t>(r-1,c));
-                    parent[p] = c;
+                    parent[c] = p;
                 }
             }
             // if pix 1 & not connected
@@ -127,7 +127,7 @@ int main(int argc, char** argv )
     // 2nd scan
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
-            
+
         }
     }
     
