@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 
-#define WHITE 255
+#define WHITE 255 // TODO: get proper max val
 #define BLACK 0
 
 int ccl_find(int parent[], int i)
@@ -28,12 +28,14 @@ int main(int argc, char** argv )
 
     // read input image & create 0 image for output
     cv::Mat img = cv::imread(argv[2], 0);
+    cv::imwrite("img.png", img); // TODO: remove
     if ( !img.data )
     {
         std::cout << "could not read image: " << argv[2] << std::endl;
         return -1;
     }
     cv::Mat labeled = cv::Mat::zeros(img.size(), 0); // 2 = CV_16U
+    // cv::Mat labeled = img;
 
     // define size once & for all
     int rows = img.rows;
@@ -42,7 +44,8 @@ int main(int argc, char** argv )
     
     // optionally invert 0's & 1's
     if(atoi(argv[1]) == 1) {
-        cv::Mat inv = cv::Mat::zeros(img.size(), 0);
+        // cv::Mat inv = cv::Mat::zeros(img.size(), 2);
+        cv::Mat inv = img;
         for(int r = 0; r < rows; ++r) {
             for(int c = 0; c < cols; ++c) {
                 // 1 -> 0
@@ -56,10 +59,12 @@ int main(int argc, char** argv )
             }
         }
         img = inv;
+        cv::imwrite("inv.png", inv); // TODO: remove
     }
 
     // ensure image we handle is actually binary {0, 65535}, threshold at mid point
-    cv::Mat bin = cv::Mat::zeros(img.size(), 0);
+    // cv::Mat bin = cv::Mat::zeros(img.size(), 2);
+    cv::Mat bin = img;
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
             uint8_t val;
@@ -69,6 +74,7 @@ int main(int argc, char** argv )
         }
     }
     img = bin;
+    cv::imwrite("bin.png", bin); // TODO: remove
 
     int parent [2048];
     
@@ -78,7 +84,7 @@ int main(int argc, char** argv )
         for(int c = 0; c < cols; ++c) {
             // if pix 1 & connected
             if(img.at<uint8_t>(r,c) == WHITE && (img.at<uint8_t>(r,c-1) == WHITE || img.at<uint8_t>(r-1,c-1) == WHITE || img.at<uint8_t>(r-1,c) == WHITE)) {
-                // propogate label
+                // propogate label w precedence left, top-left, top
                 if(img.at<uint8_t>(r,c-1) == WHITE) {
                     labeled.at<uint8_t>(r,c) = labeled.at<uint8_t>(r,c-1);
                 }
@@ -88,12 +94,31 @@ int main(int argc, char** argv )
                 else {
                     labeled.at<uint8_t>(r,c) = labeled.at<uint8_t>(r-1,c);
                 }
+                // remember conflicting labels
+                // left & top-left
+                if(labeled.at<uint8_t>(r,c-1) != labeled.at<uint8_t>(r-1,c-1)) {
+                    int p = std::min(labeled.at<uint8_t>(r,c-1),labeled.at<uint8_t>(r-1,c-1));
+                    int c = std::max(labeled.at<uint8_t>(r,c-1),labeled.at<uint8_t>(r-1,c-1));
+                    parent[p] = c;
+                }
+                // left & top
+                if(labeled.at<uint8_t>(r,c-1) != labeled.at<uint8_t>(r-1,c)) {
+                    int p = std::min(labeled.at<uint8_t>(r,c-1),labeled.at<uint8_t>(r-1,c));
+                    int c = std::max(labeled.at<uint8_t>(r,c-1),labeled.at<uint8_t>(r-1,c));
+                    parent[p] = c;
+                }
+                // top-left & top
+                if(labeled.at<uint8_t>(r-1,c-1) != labeled.at<uint8_t>(r-1,c)) {
+                    int p = std::min(labeled.at<uint8_t>(r-1,c-1),labeled.at<uint8_t>(r-1,c));
+                    int c = std::max(labeled.at<uint8_t>(r-1,c-1),labeled.at<uint8_t>(r-1,c));
+                    parent[p] = c;
+                }
             }
             // if pix 1 & not connected
             else if(img.at<uint8_t>(r,c) == WHITE && (img.at<uint8_t>(r,c-1) == BLACK && img.at<uint8_t>(r-1,c-1) == BLACK && img.at<uint8_t>(r-1,c) == BLACK)) {
                 ++cc;
                 labeled.at<uint8_t>(r,c) = cc;
-                // labeled.at<uint8_t>(r,c) = WHITE/2; // TODO: remove this is just for testing
+                // labeled.at<uint8_t>(r,c) = WHITE/2; // TODO: remove
             }
             // if 0
             else if(img.at<uint8_t>(r,c) == BLACK) {
@@ -102,7 +127,7 @@ int main(int argc, char** argv )
         }
     }
     
-    cv:imwrite(argv[3], labeled);
+    cv::imwrite(argv[3], labeled);
 
     std::cout << "Statistics" << std::endl;
     std::cout << "Intermediate labels: " << cc << std::endl;
