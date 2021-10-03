@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 
-#define WHITE_8 255
-#define WHITE_16 65535
+#define WHITE_8 255 // u8-bit white
+#define WHITE_16 65535 // u16-bit white
 #define BLACK 0
 
 int ccl_find(int parent[], int i)
@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 {
     if ( argc != 4 )
     {
-        std::cout << "usage: ./ccl invert input_image output_image" << std::endl;
+        std::cout << "usage: ./ccl invert={0,1} input_image output_image" << std::endl;
         return -1;
     }
 
@@ -111,13 +111,6 @@ int main(int argc, char** argv)
             }
         }
     }
-    
-    // TODO: remove
-    // for(int i = 1; i < cc; ++i) {
-    //     if(parent[i] != 0) {
-    //         std::cout << i << " : " << parent[i] << " : " << ccl_find(parent, i) << std::endl;
-    //     }
-    // }
 
     // 2nd scan
     for(int r = 0; r < rows; ++r) {
@@ -128,6 +121,7 @@ int main(int argc, char** argv)
         }
     }
 
+    // reporting
     std::cout << "Statistics" << std::endl;
     int objs = 0;
     for(int i = 1; i < cc; ++i) {
