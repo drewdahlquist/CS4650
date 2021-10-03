@@ -29,12 +29,12 @@ int main(int argc, char** argv)
 
     // read input image & create output matrix of type 16-bit unsigned
     cv::Mat img = cv::imread(argv[2], 0);
-    cv::imwrite("img.png", img);
     if ( !img.data )
     {
         std::cout << "could not read image: " << argv[2] << std::endl;
         return -1;
     }
+    cv::imwrite("img.png", img);
     cv::Mat labeled = cv::Mat::zeros(img.size(), 2);
 
     // define size once & for all
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
                     int y = std::min(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c));
 
                     parent[x] = y;
-                    // ccl_union(parent, x, y);
+                    // ccl_union(parent, x, y); // TODO: seg faults but not sure why
                 }
             }
             // if pix 1 & not connected
@@ -112,16 +112,12 @@ int main(int argc, char** argv)
         }
     }
     
-    int objs = 0;
-    for(int i = 1; i < 200; ++i) {
-        if(parent[i] != 0) {
-            std::cout << i << " : " << parent[i] << " : " << ccl_find(parent, i) << std::endl;
-        }
-        if(parent[i] == -1) {
-            ++objs;
-        }
-    }
-    std::cout << "Ojbs : " << objs << std::endl;
+    // TODO: remove
+    // for(int i = 1; i < cc; ++i) {
+    //     if(parent[i] != 0) {
+    //         std::cout << i << " : " << parent[i] << " : " << ccl_find(parent, i) << std::endl;
+    //     }
+    // }
 
     // 2nd scan
     for(int r = 0; r < rows; ++r) {
@@ -131,20 +127,49 @@ int main(int argc, char** argv)
             }
         }
     }
+
+    std::cout << "Statistics" << std::endl;
+    int objs = 0;
+    for(int i = 1; i < cc; ++i) {
+        if(parent[i] == -1) {
+            ++objs;
+        }
+    }
+    std::cout << "Objects : " << objs << std::endl;
+    std::cout << "Intermediate labels: " << cc << std::endl;
+    std::cout << "Object IDs : " << std::endl;
+    for(int i = 1; i < cc; ++i) {
+        if(parent[i] == -1) {
+            int area = 0;
+            float centroid_r = 0;
+            float centroid_c = 0;
+            for(int r = 0; r < rows; ++r) {
+                for(int c = 0; c < cols; ++c) {
+                    if(labeled.at<uint16_t>(r,c) == i) {
+                        ++area;
+                        centroid_r += r;
+                        centroid_c += c;
+                    }
+                }
+            }
+            std::cout << "  Ojbect ID : " << i << std::endl;
+            std::cout << "    Area : " << area << std::endl;
+            std::cout << "    Centroid (r,c): " << centroid_r/area << "," << centroid_c/area << std::endl;
+            std::cout << "    Covariance : " << "Y" << std::endl;
+        }
+    }
+    std::cout << std::endl;
     
-    // TODO: remove
+    // amplifying colors for output
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
             if(labeled.at<uint16_t>(r,c) != 0) {
-                labeled.at<uint16_t>(r,c) += 20000;
+                labeled.at<uint16_t>(r,c) = labeled.at<uint16_t>(r,c)*500+WHITE_16/8;
             }
         }
     }
     
     cv::imwrite(argv[3], labeled);
-
-    std::cout << "Statistics" << std::endl;
-    std::cout << "Intermediate labels: " << cc << std::endl;
 
     // cv::namedWindow("CCL", cv::WINDOW_AUTOSIZE );
     // cv::imshow("CCL", gray);
