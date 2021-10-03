@@ -91,25 +91,19 @@ int main(int argc, char** argv)
                     labeled.at<uint16_t>(r,c) = labeled.at<uint16_t>(r-1,c);
                 }
                 // remember conflicting labels
-                if(labeled.at<uint16_t>(r,c) != labeled.at<uint16_t>(r,c-1) || labeled.at<uint16_t>(r,c) != labeled.at<uint16_t>(r-1,c)) {
-                    int p = 0;
-                    if(labeled.at<uint16_t>(r-1,c) != 0) {
-                        p = labeled.at<uint16_t>(r-1,c);
-                        // ccl_union(parent, cc, p);
-                    }
-                    if(labeled.at<uint16_t>(r,c-1) != 0) {
-                        p = labeled.at<uint16_t>(r,c-1);
-                        // ccl_union(parent, cc, p);
-                    }
-                    
-                    // parent[cc] = p;
+                if(labeled.at<uint16_t>(r,c-1) != labeled.at<uint16_t>(r-1,c) && labeled.at<uint16_t>(r,c-1) != 0 && labeled.at<uint16_t>(r-1,c) != 0) {
+                    int x = std::max(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c));
+                    int y = std::min(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c));
+
+                    parent[x] = y;
+                    // ccl_union(parent, x, y);
                 }
             }
             // if pix 1 & not connected
             else if(img.at<uint8_t>(r,c) == WHITE_8 && (img.at<uint8_t>(r,c-1) == BLACK && img.at<uint8_t>(r-1,c) == BLACK)) {
                 ++cc;
                 parent[cc] = -1;
-                labeled.at<uint16_t>(r,c) = cc*300;
+                labeled.at<uint16_t>(r,c) = cc;
             }
             // if 0
             else if(img.at<uint8_t>(r,c) == BLACK) {
@@ -117,11 +111,33 @@ int main(int argc, char** argv)
             }
         }
     }
+    
+    int objs = 0;
+    for(int i = 1; i < 200; ++i) {
+        if(parent[i] != 0) {
+            std::cout << i << " : " << parent[i] << " : " << ccl_find(parent, i) << std::endl;
+        }
+        if(parent[i] == -1) {
+            ++objs;
+        }
+    }
+    std::cout << "Ojbs : " << objs << std::endl;
 
     // 2nd scan
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
-            // labeled.at<uint16_t>(r,c) = ccl_find(parent, labeled.at<uint16_t>(r,c));
+            if(labeled.at<uint16_t>(r,c) != 0) {
+                labeled.at<uint16_t>(r,c) = ccl_find(parent, labeled.at<uint16_t>(r,c));
+            }
+        }
+    }
+    
+    // TODO: remove
+    for(int r = 0; r < rows; ++r) {
+        for(int c = 0; c < cols; ++c) {
+            if(labeled.at<uint16_t>(r,c) != 0) {
+                labeled.at<uint16_t>(r,c) += 20000;
+            }
         }
     }
     
@@ -129,12 +145,6 @@ int main(int argc, char** argv)
 
     std::cout << "Statistics" << std::endl;
     std::cout << "Intermediate labels: " << cc << std::endl;
-
-    for(int i = 0; i < 200; ++i) {
-        std::cout << i << " : " << parent[i]/300 << std::endl;
-    }
-
-    // std::cout << ccl_find(parent, 188) << std::endl;
 
     // cv::namedWindow("CCL", cv::WINDOW_AUTOSIZE );
     // cv::imshow("CCL", gray);
