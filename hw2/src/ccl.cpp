@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
     // read input image & create output matrix of type 16-bit unsigned
     cv::Mat img = cv::imread(argv[2], 0);
-    cv::imwrite("img.png", img); // TODO: remove
+    cv::imwrite("img.png", img);
     if ( !img.data )
     {
         std::cout << "could not read image: " << argv[2] << std::endl;
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
             }
         }
         img = inv;
-        cv::imwrite("inv.png", inv); // TODO: remove
+        cv::imwrite("inv.png", inv);
     }
 
     // ensure image we handle is actually binary {0, 255}
@@ -72,7 +72,8 @@ int main(int argc, char** argv)
         }
     }
     img = bin;
-    cv::imwrite("bin.png", bin); // TODO: remove
+    cv::imwrite("bin.png", bin);
+
 
     int parent [65535];
     
@@ -81,41 +82,34 @@ int main(int argc, char** argv)
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
             // if pix 1 & connected
-            if(img.at<uint8_t>(r,c) == WHITE_8 && (img.at<uint8_t>(r,c-1) == WHITE_8 || img.at<uint8_t>(r-1,c-1) == WHITE_8 || img.at<uint8_t>(r-1,c) == WHITE_8)) {
-                // propogate label w precedence left, top-left, top
+            if(img.at<uint8_t>(r,c) == WHITE_8 && (img.at<uint8_t>(r,c-1) == WHITE_8 || img.at<uint8_t>(r-1,c) == WHITE_8)) {
+                // propogate label w precedence left then top
                 if(img.at<uint8_t>(r,c-1) == WHITE_8) {
                     labeled.at<uint16_t>(r,c) = labeled.at<uint16_t>(r,c-1);
-                }
-                else if(img.at<uint8_t>(r-1,c-1) == WHITE_8) {
-                    labeled.at<uint16_t>(r,c) = labeled.at<uint16_t>(r-1,c-1);
                 }
                 else {
                     labeled.at<uint16_t>(r,c) = labeled.at<uint16_t>(r-1,c);
                 }
                 // remember conflicting labels
-                // left & top-left
-                if(labeled.at<uint16_t>(r,c-1) != labeled.at<uint16_t>(r-1,c-1)) {
-                    int p = std::min(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c-1));
-                    int c = std::max(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c-1));
-                    parent[c] = p;
-                }
-                // left & top
-                if(labeled.at<uint16_t>(r,c-1) != labeled.at<uint16_t>(r-1,c)) {
-                    int p = std::min(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c));
-                    int c = std::max(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c));
-                    parent[c] = p;
-                }
-                // top-left & top
-                if(labeled.at<uint16_t>(r-1,c-1) != labeled.at<uint16_t>(r-1,c)) {
-                    int p = std::min(labeled.at<uint16_t>(r-1,c-1),labeled.at<uint16_t>(r-1,c));
-                    int c = std::max(labeled.at<uint16_t>(r-1,c-1),labeled.at<uint16_t>(r-1,c));
-                    parent[c] = p;
+                if(labeled.at<uint16_t>(r,c) != labeled.at<uint16_t>(r,c-1) || labeled.at<uint16_t>(r,c) != labeled.at<uint16_t>(r-1,c)) {
+                    int p = 0;
+                    if(labeled.at<uint16_t>(r-1,c) != 0) {
+                        p = labeled.at<uint16_t>(r-1,c);
+                        // ccl_union(parent, cc, p);
+                    }
+                    if(labeled.at<uint16_t>(r,c-1) != 0) {
+                        p = labeled.at<uint16_t>(r,c-1);
+                        // ccl_union(parent, cc, p);
+                    }
+                    
+                    // parent[cc] = p;
                 }
             }
             // if pix 1 & not connected
-            else if(img.at<uint8_t>(r,c) == WHITE_8 && (img.at<uint8_t>(r,c-1) == BLACK && img.at<uint8_t>(r-1,c-1) == BLACK && img.at<uint8_t>(r-1,c) == BLACK)) {
+            else if(img.at<uint8_t>(r,c) == WHITE_8 && (img.at<uint8_t>(r,c-1) == BLACK && img.at<uint8_t>(r-1,c) == BLACK)) {
                 ++cc;
-                labeled.at<uint16_t>(r,c) = cc;
+                parent[cc] = -1;
+                labeled.at<uint16_t>(r,c) = cc*300;
             }
             // if 0
             else if(img.at<uint8_t>(r,c) == BLACK) {
@@ -127,7 +121,7 @@ int main(int argc, char** argv)
     // 2nd scan
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
-
+            // labeled.at<uint16_t>(r,c) = ccl_find(parent, labeled.at<uint16_t>(r,c));
         }
     }
     
@@ -135,6 +129,12 @@ int main(int argc, char** argv)
 
     std::cout << "Statistics" << std::endl;
     std::cout << "Intermediate labels: " << cc << std::endl;
+
+    for(int i = 0; i < 200; ++i) {
+        std::cout << i << " : " << parent[i]/300 << std::endl;
+    }
+
+    // std::cout << ccl_find(parent, 188) << std::endl;
 
     // cv::namedWindow("CCL", cv::WINDOW_AUTOSIZE );
     // cv::imshow("CCL", gray);
