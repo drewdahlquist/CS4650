@@ -3,6 +3,7 @@ report.*
 .DS_Store
 *.tar
 */img/*
+*/report/*
 */Makefile
 */CMakeFiles/*
 */*.cmake
