@@ -95,8 +95,9 @@ int main(int argc, char** argv)
                     int x = std::max(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c));
                     int y = std::min(labeled.at<uint16_t>(r,c-1),labeled.at<uint16_t>(r-1,c));
 
-                    parent[x] = y;
-                    // ccl_union(parent, x, y); // TODO: seg faults but not sure why
+                    if(ccl_find(parent, x) != ccl_find(parent, y)) {
+                        ccl_union(parent, x, y);
+                    }
                 }
             }
             // if pix 1 & not connected
