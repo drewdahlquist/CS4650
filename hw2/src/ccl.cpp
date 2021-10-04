@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <opencv2/opencv.hpp>
 
 #define WHITE_8 255 // u8-bit white
@@ -75,7 +76,7 @@ int main(int argc, char** argv)
     cv::imwrite("bin.png", bin);
 
 
-    int parent [65535];
+    int parent[3000] = {0};
     
     // 1st scan
     int cc = 0; // intermediate labels
@@ -138,6 +139,10 @@ int main(int argc, char** argv)
             int area = 0;
             float centroid_r = 0;
             float centroid_c = 0;
+            float var_r = 0;
+            float cov_rc = 0;
+            // float cov_cr = 0; // this is same as above
+            float var_c = 0;
             for(int r = 0; r < rows; ++r) {
                 for(int c = 0; c < cols; ++c) {
                     if(labeled.at<uint16_t>(r,c) == i) {
@@ -147,10 +152,19 @@ int main(int argc, char** argv)
                     }
                 }
             }
+            for(int r = 0; r < rows; ++r) {
+                for(int c = 0; c < cols; ++c) {
+                    if(labeled.at<uint16_t>(r,c) == i) {
+                        var_r += (r-centroid_r)*(r-centroid_r);
+                        cov_rc += (r-centroid_r)*(c-centroid_c);
+                        var_c += (c-centroid_c)*(c-centroid_c);
+                    }
+                }
+            }
             std::cout << "  Ojbect ID : " << i << std::endl;
             std::cout << "    Area : " << area << std::endl;
-            std::cout << "    Centroid (r,c): " << centroid_r/area << "," << centroid_c/area << std::endl;
-            std::cout << "    Covariance : " << "Y" << std::endl;
+            std::cout << "    Centroid (r,c) : " << centroid_r/area << "," << centroid_c/area << std::endl;
+            std::cout << "    Covariance : (vr vrc vrc vc) : " << var_r << " " << cov_rc << " " << cov_rc << " " << var_c << std::endl;
         }
     }
     std::cout << std::endl;
@@ -159,16 +173,12 @@ int main(int argc, char** argv)
     for(int r = 0; r < rows; ++r) {
         for(int c = 0; c < cols; ++c) {
             if(labeled.at<uint16_t>(r,c) != 0) {
-                labeled.at<uint16_t>(r,c) = labeled.at<uint16_t>(r,c)*500+WHITE_16/8;
+                labeled.at<uint16_t>(r,c) = labeled.at<uint16_t>(r,c)*200+WHITE_16/4;
             }
         }
     }
     
     cv::imwrite(argv[3], labeled);
-
-    // cv::namedWindow("CCL", cv::WINDOW_AUTOSIZE );
-    // cv::imshow("CCL", gray);
-    // cv::waitKey(0);
 
     return 0;
 }
