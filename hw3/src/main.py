@@ -22,7 +22,10 @@ def yflip(img):
     return cv.flip(img, 1)
 
 def rotate(img, deg):
-    pass
+    height, width = img.shape[:2]
+    center = tuple(np.array(img.shape[1::-1])/2)
+    R = cv.getRotationMatrix2D(center, deg, 1)
+    return cv.warpAffine(img, R, (height, width))
 
 def erase(img):
     pass
@@ -48,3 +51,4 @@ if __name__ == '__main__':
         cv.imwrite(sys.argv[2]+'/crop_'+str(i)+'.jpg', crop(img, rand.randint(1,2)*height/8, rand.randint(6,7)*height/8, rand.randint(1,2)*width/8, rand.randint(6,7)*width/8))
         cv.imwrite(sys.argv[2]+'/vflip_'+str(i)+'.jpg', xflip(img))
         cv.imwrite(sys.argv[2]+'/hflip_'+str(i)+'.jpg', yflip(img))
+        cv.imwrite(sys.argv[2]+'/rotate_'+str(i)+'.jpg', rotate(img, rand.randint(-180, 180)))
