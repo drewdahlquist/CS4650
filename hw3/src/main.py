@@ -5,21 +5,21 @@ import random as rand
 
 def translate(img, tx, ty):
     height, width = img.shape[:2]
+    # transformation matrix
     T = np.float32([
         [1, 0, tx],
         [0, 1, ty]
     ])
-    new = cv.warpAffine(img, T, (height, width))
-    return new
+    return cv.warpAffine(img, T, (height, width))
 
-def crop(img):
-    pass
+def crop(img, x_i, x_j, y_i, y_j):
+    return img[int(x_i):int(x_j), int(y_i):int(y_j)]
 
-def verticalflip(img):
-    pass
+def xflip(img):
+    return cv.flip(img, 0)
 
-def horizontalflip(img):
-    pass
+def yflip(img):
+    return cv.flip(img, 1)
 
 def rotate(img, deg):
     pass
@@ -40,7 +40,11 @@ if __name__ == '__main__':
         print('Usage: python3 main.py input.jpg output_dir')
 
     img = cv.imread(str(sys.argv[1]))
+    height, width = img.shape[:2]
 
     # 5 transformations for each implemented function
     for i in range(5):
-        cv.imwrite(sys.argv[2]+'/translate_'+str(i)+'.jpg', translate(img, rand.choice([-1,1])*(img.shape[0]/rand.randint(2,8)), rand.choice([-1,1])*(img.shape[1]/rand.randint(2,8))))
+        cv.imwrite(sys.argv[2]+'/translate_'+str(i)+'.jpg', translate(img, rand.choice([-1,1])*(height/rand.randint(2,8)), rand.choice([-1,1])*(width/rand.randint(2,8))))
+        cv.imwrite(sys.argv[2]+'/crop_'+str(i)+'.jpg', crop(img, rand.randint(1,2)*height/8, rand.randint(6,7)*height/8, rand.randint(1,2)*width/8, rand.randint(6,7)*width/8))
+        cv.imwrite(sys.argv[2]+'/vflip_'+str(i)+'.jpg', xflip(img))
+        cv.imwrite(sys.argv[2]+'/hflip_'+str(i)+'.jpg', yflip(img))
