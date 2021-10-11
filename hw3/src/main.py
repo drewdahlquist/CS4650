@@ -43,8 +43,8 @@ def erase(img):
     erased3 = cv.rectangle(erased2, p1_3, p2_3, (0,0,0), -1)
     return erased3
 
-def intensity(img):
-    pass
+def intensity(img, alpha, beta):
+    return cv.convertScaleAbs(img, alpha=alpha, beta=beta)
 
 def blur(img, filter_size):
     return cv.blur(img, (filter_size,filter_size))
@@ -64,10 +64,11 @@ if __name__ == '__main__':
         cv.imwrite(sys.argv[2]+'/crop_'+str(i)+'.jpg', crop(img, rand.randint(1,2)*height/8, rand.randint(6,7)*height/8, rand.randint(1,2)*width/8, rand.randint(6,7)*width/8))
         cv.imwrite(sys.argv[2]+'/rotate_'+str(i)+'.jpg', rotate(img, rand.randint(-180, 180)))
         # cv.imwrite(sys.argv[2]+'/erase_'+str(i)+'.jpg', erase(img))
+        cv.imwrite(sys.argv[2]+'/intensity_'+str(i)+'.jpg', intensity(img, rand.random()*2, rand.randint(-100,100)))
     
     # other transformations that don't fit above
-    cv.imwrite(sys.argv[2]+'/vflip.jpg', xflip(img))
-    cv.imwrite(sys.argv[2]+'/hflip.jpg', yflip(img))
+    cv.imwrite(sys.argv[2]+'/xflip.jpg', xflip(img))
+    cv.imwrite(sys.argv[2]+'/yflip.jpg', yflip(img))
     cv.imwrite(sys.argv[2]+'/blur3.jpg', blur(img, 3))
     cv.imwrite(sys.argv[2]+'/blur5.jpg', blur(img, 5))
     cv.imwrite(sys.argv[2]+'/blur7.jpg', blur(img, 7))
