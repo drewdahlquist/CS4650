@@ -28,13 +28,26 @@ def rotate(img, deg):
     return cv.warpAffine(img, R, (height, width))
 
 def erase(img):
-    pass
+    height, width = img.shape[:2]
+    # box 1
+    p1_1 = (rand.randint(0,height),rand.randint(0,width))
+    p2_1 = (rand.randint(0,height),rand.randint(0,width))
+    # box 2
+    p1_2 = (rand.randint(0,int(height/2)),rand.randint(0,int(width/2)))
+    p2_2 = (rand.randint(0,int(height/2)),rand.randint(0,int(width/2)))
+    # box 3
+    p1_3 = (rand.randint(int(height/2),height),rand.randint(int(width/2),width))
+    p2_3 = (rand.randint(int(height/2),height),rand.randint(int(width/2),width))
+    erased1 = cv.rectangle(img, p1_1, p2_1, (0,0,0), -1)
+    erased2 = cv.rectangle(erased1, p1_2, p2_2, (0,0,0), -1)
+    erased3 = cv.rectangle(erased2, p1_3, p2_3, (0,0,0), -1)
+    return erased3
 
 def intensity(img):
     pass
 
 def blur(img, filter_size):
-    pass
+    return cv.blur(img, (filter_size,filter_size))
 
 
 if __name__ == '__main__':
@@ -49,6 +62,12 @@ if __name__ == '__main__':
     for i in range(5):
         cv.imwrite(sys.argv[2]+'/translate_'+str(i)+'.jpg', translate(img, rand.choice([-1,1])*(height/rand.randint(2,8)), rand.choice([-1,1])*(width/rand.randint(2,8))))
         cv.imwrite(sys.argv[2]+'/crop_'+str(i)+'.jpg', crop(img, rand.randint(1,2)*height/8, rand.randint(6,7)*height/8, rand.randint(1,2)*width/8, rand.randint(6,7)*width/8))
-        cv.imwrite(sys.argv[2]+'/vflip_'+str(i)+'.jpg', xflip(img))
-        cv.imwrite(sys.argv[2]+'/hflip_'+str(i)+'.jpg', yflip(img))
         cv.imwrite(sys.argv[2]+'/rotate_'+str(i)+'.jpg', rotate(img, rand.randint(-180, 180)))
+        # cv.imwrite(sys.argv[2]+'/erase_'+str(i)+'.jpg', erase(img))
+    
+    # other transformations that don't fit above
+    cv.imwrite(sys.argv[2]+'/vflip.jpg', xflip(img))
+    cv.imwrite(sys.argv[2]+'/hflip.jpg', yflip(img))
+    cv.imwrite(sys.argv[2]+'/blur3.jpg', blur(img, 3))
+    cv.imwrite(sys.argv[2]+'/blur5.jpg', blur(img, 5))
+    cv.imwrite(sys.argv[2]+'/blur7.jpg', blur(img, 7))
