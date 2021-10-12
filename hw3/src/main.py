@@ -27,9 +27,9 @@ def rotate(img, deg):
     R = cv.getRotationMatrix2D(center, deg, 1)
     return cv.warpAffine(img, R, (height, width))
 
-def erase(img, p1, p2, p3, p4, p5, p6):
+def erase(img, r1, r2, r3):
     cpy = img.copy()
-    return cv.rectangle(cv.rectangle(cv.rectangle(cpy, p1, p2, (0,0,0), -1), p3, p4, (0,0,0), -1), p5, p6, (0,0,0), -1)
+    return cv.rectangle(cv.rectangle(cv.rectangle(cpy, r1[0], r1[1], (0,0,0), -1), r2[0], r2[1], (0,0,0), -1), r3[0], r3[1], (0,0,0), -1)
 
 def intensity(img, alpha_b, beta_b, alpha_g, beta_g, alpha_r, beta_r):
     height,width=img.shape[:2]
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         p4 = (p3[0]+rand.randint(20,40), p3[1]+rand.randint(20,40))
         p5 = (rand.randint(int(height/2),height), rand.randint(int(width/2),width))
         p6 = (p5[0]+rand.randint(20,40), p5[1]+rand.randint(20,40))
-        cv.imwrite(sys.argv[2]+'/erase_'+str(i)+'.jpg', erase(img, p1, p2, p3, p4, p5, p6))
+        cv.imwrite(sys.argv[2]+'/erase_'+str(i)+'.jpg', erase(img, (p1, p2), (p3, p4), (p5, p6)))
         cv.imwrite(sys.argv[2]+'/intensity_'+str(i)+'.jpg', intensity(img, rand.random()*2, rand.randint(-64,64), rand.random()*2, rand.randint(-64,64), rand.random()*2, rand.randint(-64,64)))
         cv.imwrite(sys.argv[2]+'/blur3_'+str(i)+'.jpg', blur(img, 3))
         cv.imwrite(sys.argv[2]+'/blur5_'+str(i)+'.jpg', blur(img, 5))
