@@ -32,34 +32,31 @@ def erase(img, p1, p2, p3, p4, p5, p6):
     return cv.rectangle(cv.rectangle(cv.rectangle(cpy, p1, p2, (0,0,0), -1), p3, p4, (0,0,0), -1), p5, p6, (0,0,0), -1)
 
 def intensity(img, alpha_b, beta_b, alpha_g, beta_g, alpha_r, beta_r):
+    height,width=img.shape[:2]
     b,g,r=cv.split(img)
-    for row in b:
-        for pix in row:
-            val = pix*alpha_b+beta_b
-            if(val < 0):
-                pix = 0
-            elif(val > 255):
-                pix = 255
+    for x in range(height):
+        for y in range(width):
+            b_val = b[x,y]*alpha_b+beta_b
+            g_val = g[x,y]*alpha_g+beta_g
+            r_val = r[x,y]*alpha_r+beta_r
+            if(b_val < 0):
+                b[x,y] = 0
+            elif(b_val > 255):
+                b[x,y] = 255
             else:
-                pix = val
-    for row in g:
-        for pix in row:
-            val = pix*alpha_g+beta_g
-            if(val < 0):
-                pix = 0
-            elif(val > 255):
-                pix = 255
+                b[x,y] = b_val
+            if(g_val < 0):
+                g[x,y] = 0
+            elif(g_val > 255):
+                g[x,y] = 255
             else:
-                pix = val
-    for row in r:
-        for pix in row:
-            val = pix*alpha_r+beta_r
-            if(val < 0):
-                pix = 0
-            elif(val > 255):
-                pix = 255
+                g[x,y] = g_val
+            if(r_val < 0):
+                r[x,y] = 0
+            elif(r_val > 255):
+                r[x,y] = 255
             else:
-                pix = val
+                r[x,y] = r_val
     return cv.merge((b,g,r))
 
 def blur(img, filter_size):
@@ -81,6 +78,7 @@ if __name__ == '__main__':
         cv.imwrite(sys.argv[2]+'/xflip_'+str(i)+'.jpg', xflip(img))
         cv.imwrite(sys.argv[2]+'/yflip_'+str(i)+'.jpg', yflip(img))
         cv.imwrite(sys.argv[2]+'/rotate_'+str(i)+'.jpg', rotate(img, rand.randint(-180, 180)))
+        # corner points of 3 rectangles for random erasing
         p1 = (rand.randint(0,int(height/2)), rand.randint(0,width))
         p2 = (p1[0]+rand.randint(20,40), p1[1]+rand.randint(20,40))
         p3 = (rand.randint(int(height/2), height),rand.randint(0, int(width/2)))
@@ -88,7 +86,7 @@ if __name__ == '__main__':
         p5 = (rand.randint(int(height/2),height), rand.randint(int(width/2),width))
         p6 = (p5[0]+rand.randint(20,40), p5[1]+rand.randint(20,40))
         cv.imwrite(sys.argv[2]+'/erase_'+str(i)+'.jpg', erase(img, p1, p2, p3, p4, p5, p6))
-        cv.imwrite(sys.argv[2]+'/intensity_'+str(i)+'.jpg', intensity(img, 20, 0, 20, 0, 20, 0))
+        cv.imwrite(sys.argv[2]+'/intensity_'+str(i)+'.jpg', intensity(img, rand.random()*2, rand.randint(-64,64), rand.random()*2, rand.randint(-64,64), rand.random()*2, rand.randint(-64,64)))
         cv.imwrite(sys.argv[2]+'/blur3_'+str(i)+'.jpg', blur(img, 3))
         cv.imwrite(sys.argv[2]+'/blur5_'+str(i)+'.jpg', blur(img, 5))
         cv.imwrite(sys.argv[2]+'/blur7_'+str(i)+'.jpg', blur(img, 7))
