@@ -27,24 +27,40 @@ def rotate(img, deg):
     R = cv.getRotationMatrix2D(center, deg, 1)
     return cv.warpAffine(img, R, (height, width))
 
-def erase(img):
-    height, width = img.shape[:2]
-    # box 1
-    p1_1 = (rand.randint(0,height),rand.randint(0,width))
-    p2_1 = (rand.randint(0,height),rand.randint(0,width))
-    # box 2
-    p1_2 = (rand.randint(0,int(height/2)),rand.randint(0,int(width/2)))
-    p2_2 = (rand.randint(0,int(height/2)),rand.randint(0,int(width/2)))
-    # box 3
-    p1_3 = (rand.randint(int(height/2),height),rand.randint(int(width/2),width))
-    p2_3 = (rand.randint(int(height/2),height),rand.randint(int(width/2),width))
-    erased1 = cv.rectangle(img, p1_1, p2_1, (0,0,0), -1)
-    erased2 = cv.rectangle(erased1, p1_2, p2_2, (0,0,0), -1)
-    erased3 = cv.rectangle(erased2, p1_3, p2_3, (0,0,0), -1)
-    return erased3
+def erase(img, p1, p2, p3, p4, p5, p6):
+    cpy = img.copy()
+    return cv.rectangle(cv.rectangle(cv.rectangle(cpy, p1, p2, (0,0,0), -1), p3, p4, (0,0,0), -1), p5, p6, (0,0,0), -1)
 
-def intensity(img, alpha, beta):
-    return cv.convertScaleAbs(img, alpha=alpha, beta=beta)
+def intensity(img, alpha_b, beta_b, alpha_g, beta_g, alpha_r, beta_r):
+    b,g,r=cv.split(img)
+    for row in b:
+        for pix in row:
+            val = pix*alpha_b+beta_b
+            if(val < 0):
+                pix = 0
+            elif(val > 255):
+                pix = 255
+            else:
+                pix = val
+    for row in g:
+        for pix in row:
+            val = pix*alpha_g+beta_g
+            if(val < 0):
+                pix = 0
+            elif(val > 255):
+                pix = 255
+            else:
+                pix = val
+    for row in r:
+        for pix in row:
+            val = pix*alpha_r+beta_r
+            if(val < 0):
+                pix = 0
+            elif(val > 255):
+                pix = 255
+            else:
+                pix = val
+    return cv.merge((b,g,r))
 
 def blur(img, filter_size):
     return cv.blur(img, (filter_size,filter_size))
@@ -62,13 +78,17 @@ if __name__ == '__main__':
     for i in range(5):
         cv.imwrite(sys.argv[2]+'/translate_'+str(i)+'.jpg', translate(img, rand.choice([-1,1])*(height/rand.randint(2,8)), rand.choice([-1,1])*(width/rand.randint(2,8))))
         cv.imwrite(sys.argv[2]+'/crop_'+str(i)+'.jpg', crop(img, rand.randint(1,2)*height/8, rand.randint(6,7)*height/8, rand.randint(1,2)*width/8, rand.randint(6,7)*width/8))
+        cv.imwrite(sys.argv[2]+'/xflip_'+str(i)+'.jpg', xflip(img))
+        cv.imwrite(sys.argv[2]+'/yflip_'+str(i)+'.jpg', yflip(img))
         cv.imwrite(sys.argv[2]+'/rotate_'+str(i)+'.jpg', rotate(img, rand.randint(-180, 180)))
-        # cv.imwrite(sys.argv[2]+'/erase_'+str(i)+'.jpg', erase(img))
-        cv.imwrite(sys.argv[2]+'/intensity_'+str(i)+'.jpg', intensity(img, rand.random()*2, rand.randint(-100,100)))
-    
-    # other transformations that don't fit above
-    cv.imwrite(sys.argv[2]+'/xflip.jpg', xflip(img))
-    cv.imwrite(sys.argv[2]+'/yflip.jpg', yflip(img))
-    cv.imwrite(sys.argv[2]+'/blur3.jpg', blur(img, 3))
-    cv.imwrite(sys.argv[2]+'/blur5.jpg', blur(img, 5))
-    cv.imwrite(sys.argv[2]+'/blur7.jpg', blur(img, 7))
+        p1 = (rand.randint(0,int(height/2)), rand.randint(0,width))
+        p2 = (p1[0]+rand.randint(20,40), p1[1]+rand.randint(20,40))
+        p3 = (rand.randint(int(height/2), height),rand.randint(0, int(width/2)))
+        p4 = (p3[0]+rand.randint(20,40), p3[1]+rand.randint(20,40))
+        p5 = (rand.randint(int(height/2),height), rand.randint(int(width/2),width))
+        p6 = (p5[0]+rand.randint(20,40), p5[1]+rand.randint(20,40))
+        cv.imwrite(sys.argv[2]+'/erase_'+str(i)+'.jpg', erase(img, p1, p2, p3, p4, p5, p6))
+        cv.imwrite(sys.argv[2]+'/intensity_'+str(i)+'.jpg', intensity(img, 20, 0, 20, 0, 20, 0))
+        cv.imwrite(sys.argv[2]+'/blur3_'+str(i)+'.jpg', blur(img, 3))
+        cv.imwrite(sys.argv[2]+'/blur5_'+str(i)+'.jpg', blur(img, 5))
+        cv.imwrite(sys.argv[2]+'/blur7_'+str(i)+'.jpg', blur(img, 7))
