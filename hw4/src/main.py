@@ -122,7 +122,7 @@ if __name__ == '__main__':
     bins = int(sys.argv[2])
     out_dir = str(sys.argv[3])
     # optionally uncomment to test grayscale features
-    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    # img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     print(img.shape) # sanity check for bgr vs grayscale imgs
     
     # dealing with bgr img
@@ -191,7 +191,7 @@ if __name__ == '__main__':
         plt.ylabel('Frequency')
         color = ('b','g','r')
         for i,col in enumerate(color):
-            histr = cv.calcHist([img],[i],None,[256],[0,256])
+            histr = cv.calcHist([comp],[i],None,[256],[0,256])
             plt.plot(histr,color = col)
             plt.xlim([0,256])
         plt.savefig(out_dir+'/cv_bgr_hist_eq.png')
