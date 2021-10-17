@@ -98,35 +98,19 @@ def bgr_log_transform(img):
 
 def bgr_hist_eq(img):
 
-    hist = bgr_hist(img)
+    # convert to proper color space
+    img_ycrcb = cv.cvtColor(img, cv.COLOR_BGR2YCR_CB)
 
-    # calc cdf
-    cdf = np.zeros((3,256))
-    cdf[0][0] = hist[0][0]
-    cdf[1][0] = hist[1][0]
-    cdf[2][0] = hist[2][0]
-    for i in range(3):
-        for j in range(1,256):
-            cdf[i][j] = hist[i][j] + cdf[i][j-1]
-    cdf /= img.shape[0]*img.shape[1]
-    
-    # new histograms
-    hist_eq = np.around(255*cdf)
-    hist_out = np.zeros(hist.shape)
-    for i in range(3):
-        for j in range(256):
-            hist_out[i][int(hist_eq[i][j])] += hist[i][j]
-    
-    # new img
-    img_out = img.copy()
-    height, width, channels = img.shape[:3]
-    for x in range(height):
-        for y in range(width):
-            for c in range(channels):
-                img_out[x][y][c] = hist_eq[c][img[x][y][c]]
+    # use our grayscale hist eq on the y channel then merge & convert back to bgr
+    (y, cr, cb) = cv.split(img_ycrcb)
+    y_hist_eq, y_eq = gray_hist_eq(y)
+    img_ycrcb_out = cv.merge((y_eq, cr, cb))
+    img_out = cv.cvtColor(img_ycrcb_out, cv.COLOR_YCR_CB2BGR)
+
+    # hist of bgr eq img
+    hist_out = bgr_hist(img_out)
 
     return hist_out, img_out
-
 
 if __name__ == '__main__':
 
@@ -137,6 +121,8 @@ if __name__ == '__main__':
     img = cv.imread(str(sys.argv[1]))
     bins = int(sys.argv[2])
     out_dir = str(sys.argv[3])
+    # optionally uncomment to test grayscale features
+    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     print(img.shape) # sanity check for bgr vs grayscale imgs
     
     # dealing with bgr img
@@ -195,6 +181,20 @@ if __name__ == '__main__':
         cv.imshow('BGR Image Equalized', img_eq)
         cv.waitKey(0)
 
+        # compare to opencv's hist eq
+        ycrcb_img = cv.cvtColor(img, cv.COLOR_BGR2YCrCb)
+        ycrcb_img[:, :, 0] = cv.equalizeHist(ycrcb_img[:, :, 0])
+        comp = cv.cvtColor(ycrcb_img, cv.COLOR_YCrCb2BGR)
+        cv.imwrite(out_dir+'/cv_bgr_img_eq.png', comp)
+        plt.title('OpenCV BGR Histogram Equalized')
+        plt.xlabel('Value')
+        plt.ylabel('Frequency')
+        color = ('b','g','r')
+        for i,col in enumerate(color):
+            histr = cv.calcHist([img],[i],None,[256],[0,256])
+            plt.plot(histr,color = col)
+            plt.xlim([0,256])
+        plt.savefig(out_dir+'/cv_bgr_hist_eq.png')
 
     # grayscale img
     else:
