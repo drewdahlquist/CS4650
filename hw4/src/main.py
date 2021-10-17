@@ -243,3 +243,12 @@ if __name__ == '__main__':
         cv.imwrite(out_dir+'/gray_img_eq.png', img_eq)
         cv.imshow('Gray Image Equalized', img_eq)
         cv.waitKey(0)
+
+        # compare to opencv's hist eq
+        comp = cv.equalizeHist(img)
+        cv.imwrite(out_dir+'/cv_gray_img_eq.png', comp)
+        plt.title('OpenCV Gray Histogram Equalized')
+        plt.xlabel('Value')
+        plt.ylabel('Frequency')
+        plt.plot(cv.calcHist([comp], [0], None, [256], [0, 256]), 'k')
+        plt.savefig(out_dir+'/cv_gray_hist_eq.png')
