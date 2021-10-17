@@ -23,7 +23,16 @@ def gray_hist_bin(img, bins):
 
 # calc log_10-transformed output for single-channel grayscale img
 def gray_log_transform(img):
-    pass
+    height, width = img.shape[:2]
+    img_out = img.copy()
+    for x in range(height):
+        for y in range(width):
+                # effectively makes log(0) = 0
+                if(img[x][y] == 0):
+                    img[x][y] = 1
+                img_out[x][y] = np.log10(img[x][y])*100
+            
+    return gray_hist(img_out), img_out
 
 def gray_hist_eq(img):
     
@@ -76,18 +85,16 @@ def bgr_hist_bin(img, bins):
 # calc log_10-transformed output for 3-channel bgr img
 def bgr_log_transform(img):
     height, width, channels = img.shape[:3]
-    new = np.zeros(img.shape[:3])
+    img_out = img.copy()
     for x in range(height):
         for y in range(width):
             for c in range(channels):
                 # effectively makes log(0) = 0
-                # if(img[x][y][c] == 0):
-                #     img[x][y][c] = 1
-                # new[x][y][c] = np.log10(img[x][y][c])*255/np.log10(255)
-                new[x][y][c] = img[x][y][c]
+                if(img[x][y][c] == 0):
+                    img[x][y][c] = 1
+                img_out[x][y][c] = np.log10(img[x][y][c])*100
             
-    cv.imshow('bgr_log', new)
-    cv.waitKey(0)
+    return bgr_hist(img_out), img_out
 
 def bgr_hist_eq(img):
 
@@ -124,11 +131,12 @@ def bgr_hist_eq(img):
 if __name__ == '__main__':
 
     if(len(sys.argv) != 4):
-        print('Usage: python3 src/main.py input.jpg bins output_dir')
+        print('Usage: python3 src/main.py input.img bins output_dir')
         exit()
 
     img = cv.imread(str(sys.argv[1]))
     bins = int(sys.argv[2])
+    out_dir = str(sys.argv[3])
     print(img.shape) # sanity check for bgr vs grayscale imgs
     
     # dealing with bgr img
@@ -136,7 +144,7 @@ if __name__ == '__main__':
 
         hist = bgr_hist(img) # Part A a
         hist_bin = bgr_hist_bin(img, bins) # Part A b
-        # bgr_log_transform(img) # Part A c
+        hist_log, img_log = bgr_log_transform(img) # Part A c
         hist_eq, img_eq = bgr_hist_eq(img) # Part B
 
         # normal hist
@@ -146,6 +154,7 @@ if __name__ == '__main__':
         plt.plot(hist[0], 'b')
         plt.plot(hist[1], 'g')
         plt.plot(hist[2], 'r')
+        plt.savefig(out_dir+'/bgr_hist.png')
         plt.show()
 
         # binned hist
@@ -155,9 +164,22 @@ if __name__ == '__main__':
         plt.plot(hist_bin[0], 'b')
         plt.plot(hist_bin[1], 'g')
         plt.plot(hist_bin[2], 'r')
+        plt.savefig(out_dir+'/bgr_hist_bin.png')
         plt.show()
 
-        # log transform
+        # log hist
+        plt.title('BGR Log Histogram')
+        plt.xlabel('Value')
+        plt.ylabel('Frequency')
+        plt.plot(hist_log[0], 'b')
+        plt.plot(hist_log[1], 'g')
+        plt.plot(hist_log[2], 'r')
+        plt.savefig(out_dir+'/bgr_hist_log.png')
+        plt.show()
+        # log img
+        cv.imwrite(out_dir+'/bgr_img_log.png', img_log)
+        cv.imshow('BGR Log', img_log)
+        cv.waitKey(0)
 
         # equalized hist
         plt.title('BGR Histogram Equalized')
@@ -166,8 +188,10 @@ if __name__ == '__main__':
         plt.plot(hist_eq[0], 'b')
         plt.plot(hist_eq[1], 'g')
         plt.plot(hist_eq[2], 'r')
+        plt.savefig(out_dir+'/bgr_hist_eq.png')
         plt.show()
         # equalized img
+        cv.imwrite(out_dir+'/bgr_img_eq.png', img_eq)
         cv.imshow('BGR Image Equalized', img_eq)
         cv.waitKey(0)
 
@@ -177,24 +201,45 @@ if __name__ == '__main__':
 
         hist = gray_hist(img) # Part A a
         hist_bin = gray_hist_bin(img, bins) # Part A b
-        gray_log_transform(img) # Part A c
-        gray_hist_eq(img) # Part B
+        hist_log, img_log = gray_log_transform(img) # Part A c
+        hist_eq, img_eq = gray_hist_eq(img) # Part B
 
         # normal hist
-        plt.title('Grayscale Histogram')
+        plt.title('Gray Histogram')
         plt.xlabel('Value')
         plt.ylabel('Frequency')
         plt.plot(hist, 'k')
+        plt.savefig(out_dir+'/gray_hist.png')
         plt.show()
 
         # binned hist
-        plt.title('Grayscale Binned Histogram')
+        plt.title('Gray Binned Histogram')
         plt.xlabel('Value')
         plt.ylabel('Frequency')
-        plt.plot(hist, 'k')
+        plt.plot(hist_bin, 'k')
+        plt.savefig(out_dir+'/gray_hist_bin.png')
         plt.show()
 
-        # log transform
+        # log hist
+        plt.title('Gray Log Histogram')
+        plt.xlabel('Value')
+        plt.ylabel('Frequency')
+        plt.plot(hist_log, 'k')
+        plt.savefig(out_dir+'/gray_hist_log.png')
+        plt.show()
+        # log img
+        cv.imwrite(out_dir+'/gray_img_log.png', img_log)
+        cv.imshow('Gray Log', img_log)
+        cv.waitKey(0)
 
         # equalized hist
+        plt.title('Gray Histogram Equalized')
+        plt.xlabel('Value')
+        plt.ylabel('Frequency')
+        plt.plot(hist_eq, 'k')
+        plt.savefig(out_dir+'/gray_hist_eq.png')
+        plt.show()
         # equalized img
+        cv.imwrite(out_dir+'/gray_img_eq.png', img_eq)
+        cv.imshow('Gray Image Equalized', img_eq)
+        cv.waitKey(0)
