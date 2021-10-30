@@ -18,27 +18,33 @@ def sobel_x_gray(img):
     Gx = [.25, 0, -.25, .5, 0, -.5, .25, 0, -.25]
     # Gx = [[.25, 0, -.25], [.5, 0, -.5], [.25, 0, -.25]]
     height, width = img.shape[:2]
-    out_x = np.zeros(shape=(height, width), dtype=np.ubyte)
+    sob_x = np.zeros(shape=(height, width), dtype=np.ubyte)
     for i in range(height-1):
         for j in range(width-1):
-            out_x[i][j] = np.dot(get_nbhd(img,i,j), Gx)
+            sob_x[i][j] = np.dot(get_nbhd(img,i,j), Gx)
 
-    cv.imshow('Gx Out', out_x)
-    cv.waitKey(0)
+    return sob_x
 
 def sobel_y_gray(img):
     Gy = [.25, .5, .25, 0, 0, 0, -.25, -.5, -.25]
     # Gy = [[.25, .5, .25], [0, 0, 0], [-.25, -.5, -.25]]
     height, width = img.shape[:2]
-    out_y = np.zeros(shape=(height, width), dtype=np.ubyte)
+    sob_y = np.zeros(shape=(height, width), dtype=np.ubyte)
     for i in range(height-1):
         for j in range(width-1):
-            out_y[i][j] = np.dot(get_nbhd(img,i,j), Gy)
+            sob_y[i][j] = np.dot(get_nbhd(img,i,j), Gy)
 
-    cv.imshow('Gy Out', out_y)
-    cv.waitKey(0)
+    return sob_y
 
-
+def sobel_mag_gray(img):
+    height, width = img.shape[:2]
+    sob_mag = np.zeros(shape=(height, width), dtype=np.ubyte)
+    sob_x, sob_y = sobel_x_gray(img), sobel_y_gray(img)
+    for i in range(height):
+        for j in range(width):
+            sob_mag[i][j] = np.sqrt(sob_x[i][j]**2 + sob_y[i][j]**2)
+    
+    return sob_mag
 
 if __name__ == '__main__':
 
@@ -61,6 +67,7 @@ if __name__ == '__main__':
     else:
         sobel_x_gray(img)
         sobel_y_gray(img)
+        sobel_mag_gray(img)
 
 
     # opencv ref
