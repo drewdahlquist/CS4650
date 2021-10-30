@@ -10,3 +10,11 @@ report.*
 */*.png
 */*.vscode
 CMakeCache.txt
+
+# things im too lazy to cover in gen.
+/hw2/CCL
+/hw2/hw2.tar.gz
+/hw3/dahlquist_drew_hw3.tgz
+/hw3/output/
+/hw4/dahlquist_drew_hw4.tgz
+/hw4/output/
