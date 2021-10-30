@@ -21,7 +21,7 @@ def sobel_x_gray(img):
     sob_x = np.zeros(shape=(height, width), dtype=np.ubyte)
     for i in range(height-1):
         for j in range(width-1):
-            sob_x[i][j] = np.dot(get_nbhd(img,i,j), Gx)
+            sob_x[i][j] = (np.dot(get_nbhd(img,i,j), Gx)+255)*255/510
 
     return sob_x
 
@@ -32,7 +32,7 @@ def sobel_y_gray(img):
     sob_y = np.zeros(shape=(height, width), dtype=np.ubyte)
     for i in range(height-1):
         for j in range(width-1):
-            sob_y[i][j] = np.dot(get_nbhd(img,i,j), Gy)
+            sob_y[i][j] = (np.dot(get_nbhd(img,i,j), Gy)+255)*255/510
 
     return sob_y
 
@@ -65,13 +65,10 @@ if __name__ == '__main__':
         pass
     # dealing with grayscale img
     else:
-        sobel_x_gray(img)
-        sobel_y_gray(img)
-        sobel_mag_gray(img)
-
-
-    # opencv ref
-    cv.imshow('OpenCV Sobelx', cv.Sobel(img,cv.CV_64F,1,0,ksize=3))
-    cv.waitKey(0)
-    cv.imshow('OpenCV Sobely', cv.Sobel(img,cv.CV_64F,0,1,ksize=3))
-    cv.waitKey(0)
+        cv.imshow('My Sobel X', sobel_x_gray(img))
+        cv.waitKey(0)
+        cv.imshow('My Sobel Y', sobel_y_gray(img))
+        cv.waitKey(0)
+        cv.imshow('My Sobel Mag', sobel_mag_gray(img))
+        cv.waitKey(0)
+    
