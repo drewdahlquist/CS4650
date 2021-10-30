@@ -46,6 +46,27 @@ def sobel_mag_gray(img):
     
     return sob_mag
 
+def sobel_x_bgr(img):
+    b, g, r = cv.split(img)
+    b_sob_x = sobel_x_gray(b)
+    g_sob_x = sobel_x_gray(g)
+    r_sob_x = sobel_x_gray(r)
+    return cv.merge((b_sob_x,g_sob_x,r_sob_x))
+
+def sobel_y_bgr(img):
+    b, g, r = cv.split(img)
+    b_sob_y = sobel_y_gray(b)
+    g_sob_y = sobel_y_gray(g)
+    r_sob_y = sobel_y_gray(r)
+    return cv.merge((b_sob_y,g_sob_y,r_sob_y))
+
+def sobel_mag_bgr(img):
+    b, g, r = cv.split(img)
+    b_sob_mag = sobel_mag_gray(b)
+    g_sob_mag = sobel_mag_gray(g)
+    r_sob_mag = sobel_mag_gray(r)
+    return cv.merge((b_sob_mag,g_sob_mag,r_sob_mag))
+
 if __name__ == '__main__':
 
     # argc check
@@ -56,13 +77,18 @@ if __name__ == '__main__':
     img = cv.imread(str(sys.argv[1]))
     out_dir = str(sys.argv[2])
     # optionally uncomment to test grayscale features
-    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    # img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     print(img.shape) # sanity check
     print(img.dtype)
 
     # dealing with bgr img
     if(len(img.shape) == 3):
-        pass
+        cv.imshow('My Sobel X', sobel_x_bgr(img))
+        cv.waitKey(0)
+        cv.imshow('My Sobel Y', sobel_y_bgr(img))
+        cv.waitKey(0)
+        cv.imshow('My Sobel Mag', sobel_mag_bgr(img))
+        cv.waitKey(0)
     # dealing with grayscale img
     else:
         cv.imshow('My Sobel X', sobel_x_gray(img))
