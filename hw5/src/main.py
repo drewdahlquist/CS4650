@@ -40,9 +40,10 @@ def sobel_mag_gray(img):
     height, width = img.shape[:2]
     sob_mag = np.zeros(shape=(height, width), dtype=np.ubyte)
     sob_x, sob_y = sobel_x_gray(img), sobel_y_gray(img)
+    rt2 = np.sqrt(2)
     for i in range(height):
         for j in range(width):
-            sob_mag[i][j] = np.sqrt(sob_x[i][j]**2 + sob_y[i][j]**2)
+            sob_mag[i][j] = np.sqrt(sob_x[i][j]**2 + sob_y[i][j]**2)/rt2
     
     return sob_mag
 
