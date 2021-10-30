@@ -16,6 +16,7 @@ def get_nbhd(img, x, y):
 
 def sobel_x_gray(img):
     Gx = [.25, 0, -.25, .5, 0, -.5, .25, 0, -.25]
+    # Gx = [[.25, 0, -.25], [.5, 0, -.5], [.25, 0, -.25]]
     height, width = img.shape[:2]
     out_x = np.zeros(shape=(height, width), dtype=np.ubyte)
     for i in range(height-1):
@@ -27,6 +28,7 @@ def sobel_x_gray(img):
 
 def sobel_y_gray(img):
     Gy = [.25, .5, .25, 0, 0, 0, -.25, -.5, -.25]
+    # Gy = [[.25, .5, .25], [0, 0, 0], [-.25, -.5, -.25]]
     height, width = img.shape[:2]
     out_y = np.zeros(shape=(height, width), dtype=np.ubyte)
     for i in range(height-1):
@@ -50,6 +52,7 @@ if __name__ == '__main__':
     # optionally uncomment to test grayscale features
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     print(img.shape) # sanity check
+    print(img.dtype)
 
     # dealing with bgr img
     if(len(img.shape) == 3):
