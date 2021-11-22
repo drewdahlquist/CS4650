@@ -1,17 +1,17 @@
 import numpy as np
 import cv2 as cv
-import matplotlib.pyplot as plt
 import sys
+from multiprocessing import Process
+from numba import njit, prange
 
-def stage_A(img, x, y, sz, sz_max):
-    if(sz%2 != 1):
-        print('stage_A only accepts odd filter sizes. Exiting...')
-        exit()
+@njit
+def stage_A(img, x, y, sz=3, sz_max=21):
+    pad = sz//2
+    nbhd = img[x-pad:x+pad+1,y-pad:y+pad+1].flatten()
+    zmed = int(np.median(nbhd))
+    zmin = int(np.min(nbhd))
+    zmax = int(np.max(nbhd))
 
-    h, w = img.shape[:2]
-    nbhd = img[min(0,x-sz//2):max(h,x+sz//2), min(0,y-sz//2):max(w,y+sz//2)].flatten()
-    zmed = nbhd[len(nbhd)//2]
-    zmin, zmax = int(min(nbhd)), int(max(nbhd))
     a1 = int(zmed)-zmin
     a2 = int(zmed)-zmax
     if(a1 > 0 and a2 < 0):
@@ -26,16 +26,23 @@ def stage_A(img, x, y, sz, sz_max):
         else:
             return zmed
 
-
-def adaptive_median(img):
+@njit(parallel=True)
+def adaptive_median(img,sz=3,sz_max=21):
     h, w = img.shape[:2]
-    filtered = np.zeros(shape=(h,w), dtype=np.ubyte)
+    pad = sz_max//2
 
-    for x in range(h):
-        for y in range(w):
-            filtered[x,y] = stage_A(img, x, y, 3, 21)
+    # perform padding
+    padded = np.zeros(shape=(h+2*pad,w+2*pad))
+    padded[pad:-pad,pad:-pad] = img
 
-    return filtered
+    filtered = np.zeros(shape=padded.shape, dtype=np.ubyte)
+
+    for x in prange(pad,h+pad+1):
+        for y in range(pad,w+pad+1):
+            filtered[x,y] = stage_A(padded, x, y, sz, sz_max)
+
+    # only return non-padded slice of img
+    return filtered[pad:-pad, pad:-pad]
 
 
 if __name__ == '__main__':
@@ -52,5 +59,5 @@ if __name__ == '__main__':
     print('shape:', img.shape)
     print('dtpye:', img.dtype)
 
-    cv.imshow('AMF', adaptive_median(img))
-    cv.waitKey(0)
+    median = adaptive_median(img)
+    cv.imwrite('median.'+ext, median)
