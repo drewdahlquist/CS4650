@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 import sys
+import time
 from multiprocessing import Process
 from numba import njit, prange
 
@@ -59,5 +60,20 @@ if __name__ == '__main__':
     print('shape:', img.shape)
     print('dtpye:', img.dtype)
 
+    times = dict()
+
+    # my median filter
+    t1 = time.perf_counter()
     median = adaptive_median(img)
+    t2 = time.perf_counter()
+    times['amf'] = t2-t1
     cv.imwrite('median.'+ext, median)
+
+    # time windows sizes 3x3 thru 21x21
+    for sz in range(3, 22, 2):
+        t1 = time.perf_counter()
+        cv.medianBlur(img, sz)
+        t2 = time.perf_counter()
+        times[sz] = t2-t1
+
+    print(times)
