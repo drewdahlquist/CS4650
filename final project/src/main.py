@@ -5,6 +5,8 @@ import sys
 import time
 import random
 
+# will vary by user/system
+PATH_TO_OPENCV_HAARCASCADES = '/Users/drew/opencv/opencv-master/data/haarcascades/haarcascade_frontalface_alt.xml'
 
 def integral_image(img):
     height, width = img.shape[:2]
@@ -42,18 +44,21 @@ if __name__ == '__main__':
         exit()
 
     # read img in graysacle & get its extension type
-    img = cv.imread(str(sys.argv[1]), cv.IMREAD_GRAYSCALE)
+    original_img = cv.imread(str(sys.argv[1]))
+    grayscale_img = cv.cvtColor(original_img, cv.COLOR_BGR2GRAY)
     ext = str(sys.argv[1]).split('.')[-1]
 
     # sanity check
-    print('shape:', img.shape)
-    print('dtpye:', img.dtype)
+    print('shape:', original_img.shape)
+    print('dtpye:', original_img.dtype)
 
     # for future reference
-    h, w = img.shape[:2]
+    h, w = original_img.shape[:2]
+
+    """begin: Integral Image computations"""
 
     # compute & save integral image
-    integral_img = integral_image(img)
+    integral_img = integral_image(grayscale_img)
     plt.imsave('integral_img.'+ext, integral_img[0:h,0:w])
 
     # timing
@@ -80,7 +85,7 @@ if __name__ == '__main__':
         sum2 = 0
         for x in range(pt1[0], pt2[0]):
             for y in range(pt1[1], pt2[1]):
-                sum2 += img[x, y]
+                sum2 += grayscale_img[x, y]
         t4 = time.perf_counter()
 
         int_time += t2 - t1
@@ -91,3 +96,24 @@ if __name__ == '__main__':
     print('Difference between each sum: ', sum1 - sum2)
     print('Integral Image Time', int_time)
     print('Regular Image Time', reg_time)
+
+    """end: Integral Image computations"""
+
+    """begin: Face detection"""
+
+    face_cascade = cv.CascadeClassifier(PATH_TO_OPENCV_HAARCASCADES)
+
+    face = face_cascade.detectMultiScale(grayscale_img)
+
+    for (column, row, width, height) in face:
+        cv.rectangle(
+            original_img,
+            (column, row),
+            (column + width, row + height),
+            (0, 255, 0),
+            2
+        )
+
+    cv.imwrite('Face.'+ext, original_img)
+
+    """end: Face detection"""
